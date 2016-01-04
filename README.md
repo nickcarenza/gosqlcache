@@ -6,7 +6,7 @@ How it works
 ------------
 Gosqlcache registers itself as a driver and allows you to register query strings to be cached for a period of time. When you run a registered query, the driver will match the query and argument list against cached results. If a registered query is run and there are no cached results, it will cache them for you.
 
-Exec statements and unregistered query pass directly through to lib/pq.
+Exec statements and unregistered queries pass directly through to lib/pq.
 
 Warnings
 --------
