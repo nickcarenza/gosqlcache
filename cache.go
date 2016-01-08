@@ -22,7 +22,7 @@ import (
 
 var ERR_CLOSED = errors.New("Closed")
 
-var _cache sqlcacher
+var _cache SqlCacher
 
 // Queries to cache
 var _cacheMap = map[string]time.Duration{}
@@ -79,7 +79,7 @@ type conn struct {
 	driver.Conn
 	driver.Queryer
 	driver.Execer
-	cache          sqlcacher
+	cache          SqlCacher
 	pendingQueries []stmt
 }
 
@@ -217,7 +217,7 @@ func newCachedRows(dr driver.Rows) (r *cachedRows, err error) {
 	}
 }
 
-type cacher interface {
+type Cacher interface {
 	Get(key string) interface{}
 	Put(key string, val interface{}, timeout time.Duration) error
 	IsExist(key string) bool
@@ -225,7 +225,7 @@ type cacher interface {
 	ClearAll() error
 }
 
-type sqlcacher interface {
+type SqlCacher interface {
 	GetQueryRows(query string, args []driver.Value) driver.Rows
 	PutQueryRows(query string, args []driver.Value, val driver.Rows, timeout time.Duration) error
 	IsExistQueryRows(query string, args []driver.Value) bool
@@ -234,7 +234,7 @@ type sqlcacher interface {
 }
 
 type sqlcache struct {
-	cacher
+	Cacher
 }
 
 func getCacheKey(query string, args []driver.Value) string {
@@ -247,7 +247,7 @@ func getCacheKey(query string, args []driver.Value) string {
 
 func (c *sqlcache) GetQueryRows(query string, args []driver.Value) driver.Rows {
 	key := getCacheKey(query, args)
-	cachedValue := c.cacher.Get(key)
+	cachedValue := c.Cacher.Get(key)
 	if cachedValue == nil {
 		return nil
 	}
@@ -272,24 +272,24 @@ func (c *sqlcache) PutQueryRows(query string, args []driver.Value, val driver.Ro
 	}
 	// _log.Printf("Putting query rows: %#v\n", buf.Bytes())
 	// _log.Printf("Putting query rows: %#v\n", buf.String())
-	return c.cacher.Put(key, buf.Bytes(), timeout)
+	return c.Cacher.Put(key, buf.Bytes(), timeout)
 }
 
 func (c *sqlcache) IsExistQueryRows(query string, args []driver.Value) bool {
 	key := getCacheKey(query, args)
-	return c.cacher.IsExist(key)
+	return c.Cacher.IsExist(key)
 }
 
 func (c *sqlcache) DeleteQueryRows(query string, args []driver.Value) (err error) {
 	key := getCacheKey(query, args)
-	return c.cacher.Delete(key)
+	return c.Cacher.Delete(key)
 }
 
-func SetCacher(cache cacher) {
+func SetCacher(cache Cacher) {
 	_cache = &sqlcache{cache}
 }
 
-func SetSqlCacher(cache sqlcacher) {
+func SetSqlCacher(cache SqlCacher) {
 	_cache = cache
 }
 
