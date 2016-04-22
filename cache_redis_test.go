@@ -12,14 +12,14 @@ import (
 )
 
 // docker run -p 6379 -d redis
-// export REDIS_HOST=192.168.99.104
-// export REDIS_PORT=32821
+// export REDIS_HOST=192.168.99.100
+// export REDIS_PORT=32768
 // export REDIS_USER=
 // export REDIS_PASS=
 
 // docker run -p 5432 -d postgres
-// export PG_HOST=192.168.99.104
-// export PG_PORT=32820
+// export PG_HOST=192.168.99.100
+// export PG_PORT=32771
 // export PG_DB=postgres
 // export PG_USER=postgres
 // export PG_PASS=
@@ -33,11 +33,13 @@ func TestRedisNoCache(t *testing.T) {
 	if err != nil {
 		t.Fatal("Could not connect to redis: ", err)
 	}
+	t.Log("Established redis connection")
 	redisCache := SecondsTimeoutCacheWrapper{bm}
 	db, err := sql.Open("postgres-cached", fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", os.Getenv("PG_USER"), os.Getenv("PG_PASS"), os.Getenv("PG_HOST"), os.Getenv("PG_PORT"), os.Getenv("PG_DB")))
 	if err != nil {
 		t.Fatal("Could not connect to database", err)
 	}
+	t.Log("Established database connection")
 	defer db.Close()
 	SetCacher(&redisCache)
 	defer _cache.ClearAll()

@@ -57,12 +57,18 @@ func init() {
 
 func Open(name string) (_ driver.Conn, err error) {
 	cn, err := pq.DialOpen(defaultDialer{}, name)
-	return &conn{
+	if err != nil {
+		return nil, err
+	}
+
+	cache_conn := conn{
 		Conn:    cn,
 		Queryer: cn.(driver.Queryer),
 		Execer:  cn.(driver.Execer),
 		cache:   _cache,
-	}, err
+	}
+
+	return &cache_conn, nil
 }
 
 type defaultDialer struct{}
