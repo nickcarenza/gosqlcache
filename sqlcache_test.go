@@ -3,10 +3,7 @@ package gosqlcache
 import (
 	"database/sql"
 	"database/sql/driver"
-	_ "fmt"
 	"github.com/astaxie/beego/cache"
-	_ "github.com/astaxie/beego/cache/redis"
-	_ "os"
 	"testing"
 	"time"
 )
@@ -19,7 +16,7 @@ func TestNoCache(t *testing.T) {
 	memCache := SecondsTimeoutCacheWrapper{cache.NewMemoryCache()}
 	log := NewTestLogger(t)
 	sqlCacher := NewSqlCacher(&memCache, log)
-	sqlCacheSpy := SpyOnSqlCacher(&sqlCacher)
+	sqlCacheSpy := SpyOnSqlCacher(sqlCacher)
 	mockConn := MockConn{}
 	mockDriver := MockDriver{
 		Conn: &mockConn,
@@ -72,7 +69,7 @@ func TestCacheCheckMiss(t *testing.T) {
 	memCache := SecondsTimeoutCacheWrapper{cache.NewMemoryCache()}
 	log := NewTestLogger(t)
 	sqlCacher := NewSqlCacher(&memCache, log)
-	sqlCacheSpy := SpyOnSqlCacher(&sqlCacher)
+	sqlCacheSpy := SpyOnSqlCacher(sqlCacher)
 	mockConn := MockConn{}
 	mockDriver := MockDriver{
 		Conn: &mockConn,
@@ -133,7 +130,7 @@ func TestCacheCheckHit(t *testing.T) {
 	memCache := SecondsTimeoutCacheWrapper{cache.NewMemoryCache()}
 	log := NewTestLogger(t)
 	sqlCacher := NewSqlCacher(&memCache, log)
-	sqlCacheSpy := SpyOnSqlCacher(&sqlCacher)
+	sqlCacheSpy := SpyOnSqlCacher(sqlCacher)
 	mockConn := MockConn{}
 	mockDriver := MockDriver{
 		Conn: &mockConn,

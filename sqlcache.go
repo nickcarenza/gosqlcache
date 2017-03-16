@@ -13,11 +13,11 @@ import (
 
 import . "./interfaces"
 
-func NewSqlCacher(c Cacher, l Logger) SqlCache {
+func NewSqlCacher(c Cacher, l Logger) *SqlCache {
 	if l == nil {
 		l = log.New(ioutil.Discard, "", 0)
 	}
-	return SqlCache{c, l}
+	return &SqlCache{c, l}
 }
 
 type SqlCache struct {
