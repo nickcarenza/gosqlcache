@@ -11,21 +11,7 @@ import (
 	"time"
 )
 
-type Cacher interface {
-	Get(key string) interface{}
-	Put(key string, val interface{}, timeout time.Duration) error
-	IsExist(key string) bool
-	Delete(key string) error
-	ClearAll() error
-}
-
-type SqlCacher interface {
-	GetQueryRows(query string, args []driver.Value) driver.Rows
-	PutQueryRows(query string, args []driver.Value, val driver.Rows, timeout time.Duration) error
-	IsExistQueryRows(query string, args []driver.Value) bool
-	DeleteQueryRows(query string, args []driver.Value) error
-	ClearAll() error
-}
+import . "./interfaces"
 
 func NewSqlCacher(c Cacher, l Logger) SqlCache {
 	if l == nil {

@@ -19,5 +19,5 @@ func (l *TestLogger) Printf(format string, v ...interface{}) {
 	l.T.Logf(format, v...)
 }
 func (l *TestLogger) Println(v ...interface{}) {
-	l.T.Log(append(v, "\n"))
+	l.T.Log(v...)
 }

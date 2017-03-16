@@ -9,7 +9,6 @@ import (
 
 // Implements driver.Rows
 type cachedRows struct {
-	*stmt
 	cols    []string
 	pointer int
 	data    [][]driver.Value
@@ -57,36 +56,20 @@ func (r *cachedRows) Next(dest []driver.Value) error {
 }
 
 func (r *cachedRows) GobEncode() ([]byte, error) {
-	r.stmt.cacheConn.log.Println("GobEncode")
 	var buf bytes.Buffer
 	var enc = gob.NewEncoder(&buf)
-	// r.stmt.cacheConn.log.Printf("Encoding cols %#v", r.cols)
-	// r.stmt.cacheConn.log.Printf("Encoding data %#v", r.data)
 	err := enc.Encode(map[string]interface{}{
 		"columns": r.cols,
 		"data":    r.data,
 	})
-	if err != nil {
-		r.stmt.cacheConn.log.Println("Unable to encode cached rows: ", err)
-	} else {
-		// r.stmt.cacheConn.log.Println("Encoded to: ", buf.String())
-		// r.stmt.cacheConn.log.Printf("Encoded to: %#v\n", buf.Bytes())
-	}
 	return buf.Bytes(), err
 }
 
 func (r *cachedRows) GobDecode(b []byte) (err error) {
-	r.stmt.cacheConn.log.Println("GobDecode")
-	// r.stmt.cacheConn.log.Printf("Decoding from: %#v\n", b)
 	var buf = bytes.NewBuffer(b)
 	var dec = gob.NewDecoder(buf)
 	var m = map[string]interface{}{}
 	err = dec.Decode(&m)
-	if err != nil {
-		r.stmt.cacheConn.log.Println("Unable to decode", err)
-		return
-	}
-	// r.stmt.cacheConn.log.Printf("Decoded to: %#v", m)
 	var ok bool
 	r.cols, ok = m["columns"].([]string)
 	if !ok {

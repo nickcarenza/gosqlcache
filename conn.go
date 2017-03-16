@@ -5,6 +5,8 @@ import (
 	"time"
 )
 
+import . "./interfaces"
+
 // Implements driver.Conn
 type cacheConn struct {
 	driver.Conn

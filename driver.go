@@ -7,17 +7,29 @@ import (
 	"time"
 )
 
-func NewSqlCacheDriver(d driver.Driver, c SqlCacher, l Logger) SqlCacheDriver {
+import . "./interfaces"
+
+func NewSqlCacheDriver(d driver.Driver, c SqlCacher, l Logger) *SqlCacheDriver {
 	if l == nil {
 		l = log.New(ioutil.Discard, "", 0)
 	}
-	return SqlCacheDriver{d, c, l}
+	return &SqlCacheDriver{
+		Driver:    d,
+		SqlCacher: c,
+		Logger:    l,
+		cacheConn: &cacheConn{
+			cache:    c,
+			cacheMap: map[string]time.Duration{},
+			log:      l,
+		},
+	}
 }
 
 type SqlCacheDriver struct {
 	driver.Driver
 	SqlCacher
 	Logger
+	*cacheConn
 }
 
 func (d *SqlCacheDriver) Open(name string) (driver.Conn, error) {
@@ -31,12 +43,9 @@ func Open(d *SqlCacheDriver, name string) (*cacheConn, error) {
 		return nil, err
 	}
 
-	return &cacheConn{
-		Conn:     cn,
-		Queryer:  cn.(driver.Queryer),
-		Execer:   cn.(driver.Execer),
-		cache:    d.SqlCacher,
-		cacheMap: map[string]time.Duration{},
-		log:      d.Logger,
-	}, nil
+	d.cacheConn.Conn = cn
+	d.cacheConn.Queryer = cn.(driver.Queryer)
+	d.cacheConn.Execer = cn.(driver.Execer)
+
+	return d.cacheConn, nil
 }

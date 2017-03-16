@@ -13,7 +13,9 @@ type stmt struct {
 
 func (s *stmt) Query(args []driver.Value) (r driver.Rows, err error) {
 
-	if s.cacheConn.cache != nil {
+	cacheDuration, useCache := s.cacheConn.cacheMap[s.query]
+
+	if useCache {
 		s.cacheConn.log.Println("Checking cache")
 		r = s.cacheConn.cache.GetQueryRows(s.query, args)
 		if r != nil {
@@ -28,7 +30,7 @@ func (s *stmt) Query(args []driver.Value) (r driver.Rows, err error) {
 		return nil, err
 	}
 
-	if d, ok := s.cacheConn.cacheMap[s.query]; ok {
+	if useCache {
 		// _err: type pq.rows has no exported fields
 		cr, _err := newCachedRows(r)
 		if _err != nil {
@@ -36,7 +38,7 @@ func (s *stmt) Query(args []driver.Value) (r driver.Rows, err error) {
 		} else {
 			cr.pointer = 0
 			r = cr
-			_err := s.cacheConn.cache.PutQueryRows(s.query, args, cr, d)
+			_err := s.cacheConn.cache.PutQueryRows(s.query, args, cr, cacheDuration)
 			if _err != nil {
 				s.cacheConn.log.Println("Unable to cache query rows", _err)
 			}

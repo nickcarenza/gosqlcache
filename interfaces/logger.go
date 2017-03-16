@@ -1,4 +1,4 @@
-package gosqlcache
+package interfaces
 
 type Logger interface {
 	Print(v ...interface{})
