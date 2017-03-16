@@ -11,3 +11,9 @@ Exec statements and unregistered queries pass directly through to lib/pq.
 Warnings
 --------
  - Might have unexpected results when using function calls or dynamic values in query strings. i.e. now()
+
+TODOs
+-----
+ - synchronize multiple queries to the same result set and only run it once
+ - allow multiple sql.DB to have different caches
+ - add stats
